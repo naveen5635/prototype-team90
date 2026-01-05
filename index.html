@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChristMarket AR - Navigation Assistant</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- AR Environment Background -->
+    <div class="ar-environment" id="arEnvironment">
+        <div class="environment-overlay"></div>
+        <img src="https://images.unsplash.com/photo-1543589077-47d81606c1bf?w=1920" alt="Christmas Market View" id="envImage">
+    </div>
+
+    <!-- AR UI Overlay -->
+    <div class="ar-overlay">
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <div class="status-left">
+                <span class="time">18:45</span>
+                <span class="battery">82%</span>
+            </div>
+            <div class="status-right">
+                <span class="connection">Connected</span>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="content-container" id="mainContent">
+            <!-- Welcome Screen (Entry Point) -->
+            <div class="screen active" id="welcomeScreen">
+                <div class="welcome-content">
+                    <div class="logo-container">
+                        <div class="logo-icon">🎄</div>
+                        <h1 class="app-title">ChristMarket AR</h1>
+                        <p class="app-subtitle">Your intelligent Christmas market companion</p>
+                    </div>
+                    
+                    <div class="quick-stats">
+                        <div class="stat-card">
+                            <div class="stat-icon">🏪</div>
+                            <div class="stat-text">
+                                <span class="stat-number">24</span>
+                                <span class="stat-label">Stalls</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">🎭</div>
+                            <div class="stat-text">
+                                <span class="stat-number">12</span>
+                                <span class="stat-label">Events Today</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">👥</div>
+                            <div class="stat-text">
+                                <span class="stat-number">3</span>
+                                <span class="stat-label">Friends Online</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="primary-button" onclick="showMainMenu()">
+                        <span>Start Exploring</span>
+                        <span class="gaze-indicator">👁 Gaze to select</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Main Menu -->
+            <div class="screen" id="mainMenuScreen">
+                <div class="menu-header">
+                    <h2>Main Menu</h2>
+                    <p>Select a feature to explore the market</p>
+                </div>
+
+                <div class="menu-grid">
+                    <div class="menu-card" onclick="showDiscovery()">
+                        <div class="card-icon">🔍</div>
+                        <h3>Discover</h3>
+                        <p>Find stalls and events</p>
+                        <div class="interaction-hint">
+                            <span class="hint-badge gaze">👁 Gaze</span>
+                            <span class="hint-badge gesture">👆 Tap Gesture</span>
+                        </div>
+                    </div>
+
+                    <div class="menu-card" onclick="showSchedule()">
+                        <div class="card-icon">📅</div>
+                        <h3>My Schedule</h3>
+                        <p>Adaptive itinerary planning</p>
+                        <div class="interaction-hint">
+                            <span class="hint-badge gaze">👁 Gaze</span>
+                            <span class="hint-badge gesture">👆 Tap Gesture</span>
+                        </div>
+                    </div>
+
+                    <div class="menu-card" onclick="showNavigation()">
+                        <div class="card-icon">🗺️</div>
+                        <h3>Navigate</h3>
+                        <p>AR wayfinding to locations</p>
+                        <div class="interaction-hint">
+                            <span class="hint-badge gaze">👁 Gaze</span>
+                            <span class="hint-badge gesture">👆 Tap Gesture</span>
+                        </div>
+                    </div>
+
+                    <div class="menu-card" onclick="showFriends()">
+                        <div class="card-icon">👥</div>
+                        <h3>Friends</h3>
+                        <p>Locate and message friends</p>
+                        <div class="interaction-hint">
+                            <span class="hint-badge gaze">👁 Gaze</span>
+                            <span class="hint-badge gesture">👆 Tap Gesture</span>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="secondary-button home-button" onclick="showWelcome()">
+                    <span>← Back to Home</span>
+                </button>
+            </div>
+
+            <!-- Discovery Screen -->
+            <div class="screen" id="discoveryScreen">
+                <div class="screen-header">
+                    <button class="back-button" onclick="showMainMenu()">← Menu</button>
+                    <h2>Discover Stalls & Events</h2>
+                </div>
+
+                <div class="filter-bar">
+                    <div class="filter-chip active" onclick="filterCategory('all')">
+                        All
+                    </div>
+                    <div class="filter-chip" onclick="filterCategory('food')">
+                        🍴 Food
+                    </div>
+                    <div class="filter-chip" onclick="filterCategory('drinks')">
+                        🍷 Drinks
+                    </div>
+                    <div class="filter-chip" onclick="filterCategory('crafts')">
+                        🎨 Crafts
+                    </div>
+                    <div class="filter-chip" onclick="filterCategory('events')">
+                        🎭 Events
+                    </div>
+                </div>
+
+                <div class="discovery-content">
+                    <div class="stall-list" id="stallList">
+                        <!-- Stall cards will be dynamically populated -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Schedule Screen -->
+            <div class="screen" id="scheduleScreen">
+                <div class="screen-header">
+                    <button class="back-button" onclick="showMainMenu()">← Menu</button>
+                    <h2>My Schedule</h2>
+                </div>
+
+                <div class="schedule-info">
+                    <div class="info-banner">
+                        <span class="info-icon">🤖</span>
+                        <span>AI-optimized based on wait times and preferences</span>
+                    </div>
+                </div>
+
+                <div class="timeline-container">
+                    <div class="timeline-item current">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-content">
+                            <span class="timeline-time">18:45 - 19:15</span>
+                            <h4>Glühwein at Alpine Lodge</h4>
+                            <p>📍 120m away • ⏱ Current wait: 5 minutes</p>
+                            <p class="timeline-note">Recommended: Try their signature cinnamon blend</p>
+                            <button class="inline-button" onclick="startNavToLocation('alpine')">
+                                Navigate Now →
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-content">
+                            <span class="timeline-time">19:20 - 19:50</span>
+                            <h4>Bratwurst at Sausage Haven</h4>
+                            <p>📍 210m away • ⏱ Estimated wait: 8 minutes</p>
+                            <p class="timeline-note">Popular spot! Best visited before 20:00</p>
+                        </div>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-content">
+                            <span class="timeline-time">20:00 - 20:30</span>
+                            <h4>Live Choir Performance</h4>
+                            <p>📍 Main Stage, 340m away • 🎭 Free event</p>
+                            <p class="timeline-note">St. Mary's Church Choir - Christmas carols</p>
+                        </div>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-content">
+                            <span class="timeline-time">20:45 - 21:15</span>
+                            <h4>Hot Chocolate Dreams</h4>
+                            <p>📍 145m away • ⏱ Estimated wait: 3 minutes</p>
+                            <p class="timeline-note">Perfect for warming up after the concert</p>
+                        </div>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-content">
+                            <span class="timeline-time">21:30 - 22:00</span>
+                            <h4>Browse Christmas Crafts</h4>
+                            <p>📍 Multiple stalls • 🎨 Handmade gifts</p>
+                            <p class="timeline-note">Less crowded in the evening - good time for shopping</p>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="secondary-button" onclick="showScheduleOptions()">
+                    Optimize Schedule
+                </button>
+            </div>
+
+            <!-- Navigation Screen -->
+            <div class="screen" id="navigationScreen">
+                <div class="screen-header">
+                    <button class="back-button" onclick="showMainMenu()">← Menu</button>
+                    <h2>AR Navigation</h2>
+                </div>
+
+                <div class="nav-display">
+                    <div class="ar-nav-view">
+                        <div class="direction-arrow">↑</div>
+                        <div class="distance-badge">120m ahead</div>
+                        <div class="destination-label">Alpine Lodge Glühwein</div>
+                        <div class="eta-label">ETA: 2 minutes</div>
+                    </div>
+
+                    <div class="nav-instructions">
+                        <div class="instruction-step active">
+                            <span class="step-icon">1</span>
+                            <div class="instruction-text">
+                                <span class="instruction-action">Walk straight</span>
+                                <span class="instruction-detail">Continue for 120m along the main path</span>
+                            </div>
+                        </div>
+                        <div class="instruction-step">
+                            <span class="step-icon">2</span>
+                            <div class="instruction-text">
+                                <span class="instruction-action">Turn right at the fountain</span>
+                                <span class="instruction-detail">Large illuminated fountain with Christmas star</span>
+                            </div>
+                        </div>
+                        <div class="instruction-step">
+                            <span class="step-icon">3</span>
+                            <div class="instruction-text">
+                                <span class="instruction-action">Destination on your left</span>
+                                <span class="instruction-detail">Look for the red and gold Alpine-style stall</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="nav-info-cards">
+                        <div class="info-card">
+                            <span class="info-icon">⏱</span>
+                            <div class="info-content">
+                                <span class="info-label">Current Wait</span>
+                                <span class="info-value">5 minutes</span>
+                            </div>
+                        </div>
+                        <div class="info-card">
+                            <span class="info-icon">⭐</span>
+                            <div class="info-content">
+                                <span class="info-label">Rating</span>
+                                <span class="info-value">4.8 / 5.0</span>
+                            </div>
+                        </div>
+                        <div class="info-card">
+                            <span class="info-icon">💰</span>
+                            <div class="info-content">
+                                <span class="info-label">Price</span>
+                                <span class="info-value">€4.50</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="nav-controls">
+                    <button class="nav-button" onclick="cancelNavigation()">
+                        Cancel Navigation
+                    </button>
+                </div>
+            </div>
+
+            <!-- Friends Screen -->
+            <div class="screen" id="friendsScreen">
+                <div class="screen-header">
+                    <button class="back-button" onclick="showMainMenu()">← Menu</button>
+                    <h2>Friends at Market</h2>
+                </div>
+
+                <div class="friends-list">
+                    <div class="friend-card online">
+                        <div class="friend-avatar">👤</div>
+                        <div class="friend-info">
+                            <h4>Sarah Miller</h4>
+                            <p class="friend-location">📍 Near Gingerbread House</p>
+                            <p class="friend-distance">85m away • Last seen: just now</p>
+                            <p class="friend-status">💬 "This lebkuchen is amazing!"</p>
+                        </div>
+                        <div class="friend-actions">
+                            <button class="icon-button" onclick="locateFriend('sarah')" title="Show location">
+                                📍
+                            </button>
+                            <button class="icon-button" onclick="messageFriend('sarah')" title="Send message">
+                                💬
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="friend-card online">
+                        <div class="friend-avatar">👤</div>
+                        <div class="friend-info">
+                            <h4>Michael Chen</h4>
+                            <p class="friend-location">📍 At Craft Beer Stand</p>
+                            <p class="friend-distance">210m away • Last seen: 2 min ago</p>
+                            <p class="friend-status">🍺 "Testing all the winter beers 🎄"</p>
+                        </div>
+                        <div class="friend-actions">
+                            <button class="icon-button" onclick="locateFriend('michael')" title="Show location">
+                                📍
+                            </button>
+                            <button class="icon-button" onclick="messageFriend('michael')" title="Send message">
+                                💬
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="friend-card online">
+                        <div class="friend-avatar">👤</div>
+                        <div class="friend-info">
+                            <h4>Emma Schmidt</h4>
+                            <p class="friend-location">📍 Main Stage Area</p>
+                            <p class="friend-distance">340m away • Last seen: 5 min ago</p>
+                            <p class="friend-status">🎭 "Saving seats for the choir show!"</p>
+                        </div>
+                        <div class="friend-actions">
+                            <button class="icon-button" onclick="locateFriend('emma')" title="Show location">
+                                📍
+                            </button>
+                            <button class="icon-button" onclick="messageFriend('emma')" title="Send message">
+                                💬
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="friend-card offline">
+                        <div class="friend-avatar offline">👤</div>
+                        <div class="friend-info">
+                            <h4>Lucas Weber</h4>
+                            <p class="friend-location">📍 Last seen at Pottery Studio</p>
+                            <p class="friend-distance">Left the market • 15 min ago</p>
+                            <p class="friend-status">📵 Offline</p>
+                        </div>
+                        <div class="friend-actions">
+                            <button class="icon-button disabled" title="User offline">
+                                📍
+                            </button>
+                            <button class="icon-button" onclick="messageFriend('lucas')" title="Leave message">
+                                ✉️
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="friend-card online">
+                        <div class="friend-avatar">👤</div>
+                        <div class="friend-info">
+                            <h4>Sofia Rodriguez</h4>
+                            <p class="friend-location">📍 At Christmas Light Show</p>
+                            <p class="friend-distance">380m away • Last seen: just now</p>
+                            <p class="friend-status">✨ "This light show is incredible! 🤩"</p>
+                        </div>
+                        <div class="friend-actions">
+                            <button class="icon-button" onclick="locateFriend('sofia')" title="Show location">
+                                📍
+                            </button>
+                            <button class="icon-button" onclick="messageFriend('sofia')" title="Send message">
+                                💬
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Wizard Controls (Simulation of AR inputs) -->
+        <div class="wizard-panel" id="wizardPanel">
+            <div class="wizard-header">
+                <h3>⚙️ Wizard Controls</h3>
+                <button class="toggle-wizard" onclick="toggleWizard()">▼</button>
+            </div>
+            <div class="wizard-content">
+                <div class="wizard-section">
+                    <h4>👁 Gaze Simulation</h4>
+                    <p class="wizard-description">Simulates 2-second gaze dwell time for selection</p>
+                    <div class="gaze-controls">
+                        <button class="wizard-button" onclick="simulateGazeSelect('current')">
+                            Trigger Gaze Select
+                        </button>
+                        <div class="gaze-timer" id="gazeTimer">
+                            <div class="gaze-progress"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="wizard-section">
+                    <h4>👆 Gesture Simulation</h4>
+                    <p class="wizard-description">Simulates air-tap and swipe gestures</p>
+                    <div class="gesture-controls">
+                        <button class="wizard-button" onclick="simulateGesture('tap')">
+                            Simulate Tap
+                        </button>
+                        <button class="wizard-button" onclick="simulateGesture('swipeLeft')">
+                            Simulate Swipe ←
+                        </button>
+                        <button class="wizard-button" onclick="simulateGesture('swipeRight')">
+                            Simulate Swipe →
+                        </button>
+                    </div>
+                </div>
+
+                <div class="wizard-section">
+                    <h4>🌍 Environment Simulation</h4>
+                    <p class="wizard-description">Change AR environment background</p>
+                    <div class="env-controls">
+                        <button class="wizard-button" onclick="changeEnvironment('entrance')">
+                            Market Entrance
+                        </button>
+                        <button class="wizard-button" onclick="changeEnvironment('center')">
+                            Market Center
+                        </button>
+                        <button class="wizard-button" onclick="changeEnvironment('stage')">
+                            Main Stage Area
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
