@@ -1,677 +1,488 @@
-// ============================================
-// Global State Management
-// ============================================
-const AppState = {
-    currentScreen: 'welcomeScreen',
-    selectedStall: null,
-    gazeTimers: {},
-    environmentImages: {
-        entrance: 'https://images.unsplash.com/photo-1543589077-47d81606c1bf?w=1920',
-        center: 'https://images.unsplash.com/photo-1512389142860-9c449e58a543?w=1920',
-        stage: 'https://images.unsplash.com/photo-1576919228236-a097c32a5cd4?w=1920'
-    }
-};
+// AR Christmas Market Navigator - Main Script
 
-// ============================================
-// Navigation Functions
-// ============================================
-function showScreen(screenId) {
-    // Hide all screens
-    const screens = document.querySelectorAll('.screen');
-    screens.forEach(screen => {
-        screen.classList.remove('active');
-    });
-    
-    // Show selected screen
-    const targetScreen = document.getElementById(screenId);
-    if (targetScreen) {
-        targetScreen.classList.add('active');
-        AppState.currentScreen = screenId;
-    }
-}
-
-function showWelcome() {
-    showScreen('welcomeScreen');
-}
-
-function showMainMenu() {
-    showScreen('mainMenuScreen');
-}
-
-function showDiscovery() {
-    showScreen('discoveryScreen');
-    populateStallList();
-}
-
-function showSchedule() {
-    showScreen('scheduleScreen');
-}
-
-function showNavigation() {
-    showScreen('navigationScreen');
-}
-
-function showFriends() {
-    showScreen('friendsScreen');
-}
-
-// ============================================
-// Discovery Screen Functions
-// ============================================
-const stallsData = [
-    {
-        id: 1,
-        name: "Alpine Lodge Glühwein",
-        category: "drinks",
-        icon: "🍷",
-        description: "Traditional mulled wine with secret spice blend from the Alps",
-        waitTime: "5 min",
-        distance: "120m",
-        rating: "4.8",
-        price: "€4.50"
-    },
-    {
-        id: 2,
-        name: "Sausage Haven",
-        category: "food",
-        icon: "🌭",
-        description: "Authentic German bratwurst, currywurst, and rostbratwurst",
-        waitTime: "8 min",
-        distance: "210m",
-        rating: "4.6",
-        price: "€6.00"
-    },
-    {
-        id: 3,
-        name: "Christmas Craft Corner",
-        category: "crafts",
-        icon: "🎨",
-        description: "Handmade glass ornaments and ceramic decorations",
-        waitTime: "2 min",
-        distance: "85m",
-        rating: "4.9",
-        price: "€8-25"
-    },
-    {
-        id: 4,
-        name: "Hot Chocolate Dreams",
-        category: "drinks",
-        icon: "☕",
-        description: "Premium Belgian hot chocolate with whipped cream",
-        waitTime: "3 min",
-        distance: "145m",
-        rating: "4.7",
-        price: "€3.80"
-    },
-    {
-        id: 5,
-        name: "Gingerbread House",
-        category: "food",
-        icon: "🍪",
-        description: "Fresh gingerbread, lebkuchen, and stollen from family recipe",
-        waitTime: "4 min",
-        distance: "95m",
-        rating: "4.9",
-        price: "€5.50"
-    },
-    {
-        id: 6,
-        name: "Wooden Toy Workshop",
-        category: "crafts",
-        icon: "🪀",
-        description: "Traditional handcrafted wooden toys and nutcrackers",
-        waitTime: "6 min",
-        distance: "230m",
-        rating: "4.5",
-        price: "€12-45"
-    },
-    {
-        id: 7,
-        name: "Choir Performance",
-        category: "events",
-        icon: "🎭",
-        description: "Live Christmas carol performance by St. Mary's Church Choir",
-        waitTime: "Starts 20:00",
-        distance: "340m",
-        rating: "5.0",
-        price: "Free"
-    },
-    {
-        id: 8,
-        name: "Craft Beer Stand",
-        category: "drinks",
-        icon: "🍺",
-        description: "Local winter craft beers - IPA, Stout, and seasonal specials",
-        waitTime: "7 min",
-        distance: "175m",
-        rating: "4.4",
-        price: "€5.50"
-    },
-    {
-        id: 9,
-        name: "Raclette & Cheese Delights",
-        category: "food",
-        icon: "🧀",
-        description: "Swiss raclette with potatoes and pickles, cheese platters",
-        waitTime: "10 min",
-        distance: "265m",
-        rating: "4.7",
-        price: "€7.50"
-    },
-    {
-        id: 10,
-        name: "Crêperie Française",
-        category: "food",
-        icon: "🥞",
-        description: "Sweet and savory French crêpes with various fillings",
-        waitTime: "6 min",
-        distance: "180m",
-        rating: "4.6",
-        price: "€5.00"
-    },
-    {
-        id: 11,
-        name: "Candy Cane Lane",
-        category: "food",
-        icon: "🍬",
-        description: "Handmade candy canes, rock candy, and Christmas sweets",
-        waitTime: "3 min",
-        distance: "110m",
-        rating: "4.8",
-        price: "€2-8"
-    },
-    {
-        id: 12,
-        name: "Winter Wine Cellar",
-        category: "drinks",
-        icon: "🍾",
-        description: "Premium German wines - Riesling, Spätburgunder, ice wine",
-        waitTime: "4 min",
-        distance: "290m",
-        rating: "4.9",
-        price: "€6-15"
-    },
-    {
-        id: 13,
-        name: "Knitwear & Woolens",
-        category: "crafts",
-        icon: "🧶",
-        description: "Hand-knitted scarves, mittens, and traditional wool sweaters",
-        waitTime: "5 min",
-        distance: "195m",
-        rating: "4.6",
-        price: "€15-60"
-    },
-    {
-        id: 14,
-        name: "Pottery & Ceramics Studio",
-        category: "crafts",
-        icon: "🏺",
-        description: "Beautiful handmade pottery, mugs, and ceramic art pieces",
-        waitTime: "3 min",
-        distance: "155m",
-        rating: "4.8",
-        price: "€10-40"
-    },
-    {
-        id: 15,
-        name: "Christmas Light Show",
-        category: "events",
-        icon: "✨",
-        description: "Spectacular synchronized light and music show every hour",
-        waitTime: "Next: 19:00",
-        distance: "380m",
-        rating: "5.0",
-        price: "Free"
-    },
-    {
-        id: 16,
-        name: "Maronen & Chestnuts",
-        category: "food",
-        icon: "🌰",
-        description: "Freshly roasted chestnuts - a classic Christmas market treat",
-        waitTime: "2 min",
-        distance: "75m",
-        rating: "4.5",
-        price: "€3.50"
-    },
-    {
-        id: 17,
-        name: "Artisan Jewelry",
-        category: "crafts",
-        icon: "💎",
-        description: "Unique handcrafted jewelry - silver, gold, and gemstones",
-        waitTime: "4 min",
-        distance: "220m",
-        rating: "4.7",
-        price: "€20-150"
-    },
-    {
-        id: 18,
-        name: "Punch & Feuerzangenbowle",
-        category: "drinks",
-        icon: "🔥",
-        description: "Traditional rum punch with flaming sugar cone spectacle",
-        waitTime: "9 min",
-        distance: "245m",
-        rating: "4.9",
-        price: "€5.50"
-    },
-    {
-        id: 19,
-        name: "Santa's Photo Booth",
-        category: "events",
-        icon: "🎅",
-        description: "Professional photos with Santa Claus - perfect for families",
-        waitTime: "15 min",
-        distance: "310m",
-        rating: "4.8",
-        price: "€8.00"
-    },
-    {
-        id: 20,
-        name: "Candle Making Workshop",
-        category: "events",
-        icon: "🕯️",
-        description: "Create your own Christmas candles - workshops every 30 min",
-        waitTime: "Next: 19:15",
-        distance: "270m",
-        rating: "4.7",
-        price: "€12.00"
-    },
-    {
-        id: 21,
-        name: "Advent Wreath Station",
-        category: "crafts",
-        icon: "🌿",
-        description: "Custom advent wreaths with fresh pine, candles, and ribbons",
-        waitTime: "7 min",
-        distance: "205m",
-        rating: "4.6",
-        price: "€18-35"
-    },
-    {
-        id: 22,
-        name: "Turkish Kebab Grill",
-        category: "food",
-        icon: "🥙",
-        description: "Authentic döner kebab, falafel, and Turkish specialties",
-        waitTime: "11 min",
-        distance: "325m",
-        rating: "4.5",
-        price: "€7.00"
-    },
-    {
-        id: 23,
-        name: "Spiced Apple Cider",
-        category: "drinks",
-        icon: "🍎",
-        description: "Hot apple cider with cinnamon - non-alcoholic option",
-        waitTime: "3 min",
-        distance: "130m",
-        rating: "4.7",
-        price: "€3.00"
-    },
-    {
-        id: 24,
-        name: "Music Box Collection",
-        category: "crafts",
-        icon: "🎵",
-        description: "Vintage and new music boxes with Christmas melodies",
-        waitTime: "4 min",
-        distance: "240m",
-        rating: "4.9",
-        price: "€25-80"
-    }
-];
-
-function populateStallList() {
-    const stallList = document.getElementById('stallList');
-    if (!stallList) return;
-    
-    stallList.innerHTML = stallsData.map(stall => `
-        <div class="stall-card" data-category="${stall.category}" onclick="selectStall(${stall.id})">
-            <div class="stall-icon">${stall.icon}</div>
-            <div class="stall-info">
-                <h4>${stall.name}</h4>
-                <p>${stall.description}</p>
-                <div class="stall-meta">
-                    <span class="wait-time">⏱ ${stall.waitTime}</span>
-                    <span class="distance">📍 ${stall.distance}</span>
-                    <span class="rating">⭐ ${stall.rating}</span>
-                    <span class="price">💰 ${stall.price}</span>
-                </div>
-            </div>
-        </div>
-    `).join('');
-}
-
-function filterCategory(category) {
-    const filterChips = document.querySelectorAll('.filter-chip');
-    filterChips.forEach(chip => chip.classList.remove('active'));
-    event.target.classList.add('active');
-    
-    const stallCards = document.querySelectorAll('.stall-card');
-    stallCards.forEach(card => {
-        if (category === 'all' || card.dataset.category === category) {
-            card.style.display = 'flex';
-        } else {
-            card.style.display = 'none';
-        }
-    });
-}
-
-function selectStall(stallId) {
-    AppState.selectedStall = stallsData.find(s => s.id === stallId);
-    if (!AppState.selectedStall) return;
-    
-    const stall = AppState.selectedStall;
-    
-    // Create modal
-    const modal = document.createElement('div');
-    modal.className = 'stall-modal';
-    modal.innerHTML = `
-        <div class="modal-overlay" onclick="closeStallModal()"></div>
-        <div class="modal-content">
-            <button class="modal-close" onclick="closeStallModal()">×</button>
-            <div class="modal-header">
-                <div class="modal-icon">${stall.icon}</div>
-                <h2>${stall.name}</h2>
-            </div>
-            <div class="modal-body">
-                <p class="modal-description">${stall.description}</p>
-                <div class="modal-details">
-                    <div class="detail-item">
-                        <span class="detail-icon">📍</span>
-                        <span class="detail-label">Distance:</span>
-                        <span class="detail-value">${stall.distance}</span>
-                    </div>
-                    <div class="detail-item">
-                        <span class="detail-icon">⏱</span>
-                        <span class="detail-label">Wait Time:</span>
-                        <span class="detail-value">${stall.waitTime}</span>
-                    </div>
-                    <div class="detail-item">
-                        <span class="detail-icon">⭐</span>
-                        <span class="detail-label">Rating:</span>
-                        <span class="detail-value">${stall.rating} / 5.0</span>
-                    </div>
-                    <div class="detail-item">
-                        <span class="detail-icon">💰</span>
-                        <span class="detail-label">Price Range:</span>
-                        <span class="detail-value">${stall.price}</span>
-                    </div>
-                </div>
-                <div class="modal-actions">
-                    <button class="primary-button" onclick="navigateToStall(${stall.id})">
-                        <span>Navigate to ${stall.name}</span>
-                    </button>
-                    <button class="secondary-button" onclick="addToSchedule(${stall.id})">
-                        <span>Add to Schedule</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-    `;
-    
-    document.body.appendChild(modal);
-    setTimeout(() => modal.classList.add('active'), 10);
-}
-
-function closeStallModal() {
-    const modal = document.querySelector('.stall-modal');
-    if (modal) {
-        modal.classList.remove('active');
-        setTimeout(() => modal.remove(), 300);
-    }
-}
-
-function navigateToStall(stallId) {
-    closeStallModal();
-    showNavigation();
-    showNotification(`🗺️ Starting navigation to stall`);
-}
-
-function addToSchedule(stallId) {
-    const stall = stallsData.find(s => s.id === stallId);
-    if (stall) {
-        showNotification(`✓ Added ${stall.name} to your schedule`);
-    }
-}
-
-// ============================================
-// Schedule Functions
-// ============================================
-function showScheduleOptions() {
-    alert('Schedule optimization feature would open a modal with options to:\n- Prioritize shortest wait times\n- Prioritize nearby locations\n- Add/remove items\n- Reorder manually');
-}
-
-function startNavToLocation(location) {
-    showNavigation();
-    console.log('Starting navigation to:', location);
-}
-
-// ============================================
-// Navigation Functions
-// ============================================
-function cancelNavigation() {
-    showMainMenu();
-}
-
-// ============================================
-// Friends Functions
-// ============================================
-function locateFriend(friendId) {
-    alert(`Locating ${friendId}... AR navigation would show their position and path to them.`);
-}
-
-function messageFriend(friendId) {
-    alert(`Messaging ${friendId}... Voice-to-text or quick message interface would appear.`);
-}
-
-// ============================================
-// Wizard Control Functions (AR Simulation)
-// ============================================
-function toggleWizard() {
-    const wizardPanel = document.getElementById('wizardPanel');
-    wizardPanel.classList.toggle('collapsed');
-}
-
-function simulateGazeSelect(target) {
-    const gazeTimer = document.getElementById('gazeTimer');
-    gazeTimer.classList.add('active');
-    
-    // Simulate 2-second gaze dwell
-    setTimeout(() => {
-        gazeTimer.classList.remove('active');
+class ARNavigator {
+    constructor() {
+        this.currentView = 'home';
+        this.favorites = [];
+        this.activeNavigation = null;
+        this.gazeDuration = 1000; // 1 second for eye-tracking
+        this.gazeTimeout = null;
+        this.shops = this.initializeShops();
         
-        // Trigger action based on current screen
-        const currentElement = document.querySelector('.menu-card:hover, .primary-button:hover, .stall-card:hover');
-        if (currentElement) {
-            currentElement.click();
-        }
-        
-        showNotification('✓ Gaze selection completed');
-    }, 2000);
-}
+        this.init();
+    }
 
-function simulateGesture(gestureType) {
-    switch(gestureType) {
-        case 'tap':
-            showNotification('👆 Air-tap gesture detected');
-            // Simulate clicking the focused element
-            const focusedElement = document.activeElement;
-            if (focusedElement && focusedElement.click) {
-                setTimeout(() => focusedElement.click(), 300);
+    initializeShops() {
+        return {
+            'burgers': {
+                name: 'BURGERS',
+                type: 'food',
+                queue: 'red',
+                menu: [
+                    { item: 'HAMBURGER', price: '€12' },
+                    { item: 'CHEESEBURG', price: '€15' },
+                    { item: 'FRITES', price: '€7' }
+                ],
+                position: { left: '30%', top: '45%' }
+            },
+            'churros': {
+                name: 'Churros',
+                type: 'food',
+                queue: 'green',
+                menu: [
+                    { item: 'CHURROS', price: '€5' },
+                    { item: 'CHOCOLATE DIP', price: '€2' }
+                ],
+                position: { left: '65%', top: '35%' }
+            },
+            'wein': {
+                name: 'Wein',
+                type: 'drink',
+                queue: 'yellow',
+                menu: [
+                    { item: 'RED WINE', price: '€8' },
+                    { item: 'WHITE WINE', price: '€8' }
+                ],
+                position: { left: '15%', top: '25%' }
+            },
+            'gluhwein': {
+                name: 'Glühwein',
+                type: 'drink',
+                queue: 'green',
+                menu: [
+                    { item: 'GLÜHWEIN', price: '€6' },
+                    { item: 'KINDERPUNSCH', price: '€4' }
+                ],
+                position: { left: '50%', bottom: '10%' }
+            },
+            'schwenker': {
+                name: 'Schwenker',
+                type: 'food',
+                queue: 'yellow',
+                menu: [
+                    { item: 'BRATWURST', price: '€7' },
+                    { item: 'SCHWENKER', price: '€10' }
+                ],
+                position: { right: '10%', bottom: '10%' }
             }
-            break;
-        case 'swipeLeft':
-            showNotification('👈 Swipe left gesture detected');
-            // Could navigate to previous screen or card
-            break;
-        case 'swipeRight':
-            showNotification('👉 Swipe right gesture detected');
-            // Could navigate to next screen or card
-            break;
+        };
     }
-}
 
-function changeEnvironment(location) {
-    const envImage = document.getElementById('envImage');
-    const newImageUrl = AppState.environmentImages[location] || AppState.environmentImages.entrance;
-    
-    // Fade out
-    envImage.style.opacity = '0';
-    
-    setTimeout(() => {
-        envImage.src = newImageUrl;
-        // Fade in
-        envImage.style.opacity = '1';
-        showNotification(`📍 Moved to ${location} area`);
-    }, 500);
-}
-
-// ============================================
-// Notification System
-// ============================================
-function showNotification(message) {
-    // Remove existing notification
-    const existingNotif = document.querySelector('.notification');
-    if (existingNotif) {
-        existingNotif.remove();
+    init() {
+        this.setupEventListeners();
+        this.showGestureHint();
     }
-    
-    // Create notification
-    const notification = document.createElement('div');
-    notification.className = 'notification';
-    notification.textContent = message;
-    notification.style.cssText = `
-        position: fixed;
-        top: 80px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: rgba(212, 175, 55, 0.95);
-        color: #1A1A1A;
-        padding: 12px 24px;
-        border-radius: 8px;
-        font-weight: 600;
-        z-index: 2000;
-        animation: slideDown 0.3s ease-out;
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
-    `;
-    
-    document.body.appendChild(notification);
-    
-    // Remove after 2 seconds
-    setTimeout(() => {
-        notification.style.animation = 'slideUp 0.3s ease-out';
-        setTimeout(() => notification.remove(), 300);
-    }, 2000);
-}
 
-// Add notification animations to CSS dynamically
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes slideDown {
-        from {
-            transform: translateX(-50%) translateY(-100%);
-            opacity: 0;
-        }
-        to {
-            transform: translateX(-50%) translateY(0);
-            opacity: 1;
-        }
-    }
-    
-    @keyframes slideUp {
-        from {
-            transform: translateX(-50%) translateY(0);
-            opacity: 1;
-        }
-        to {
-            transform: translateX(-50%) translateY(-100%);
-            opacity: 0;
-        }
-    }
-`;
-document.head.appendChild(style);
+    setupEventListeners() {
+        // Menu options (home screen)
+        document.querySelectorAll('.menu-option').forEach(option => {
+            option.addEventListener('mouseenter', (e) => this.startGaze(e.currentTarget));
+            option.addEventListener('mouseleave', () => this.cancelGaze());
+            option.addEventListener('click', (e) => {
+                const action = e.currentTarget.dataset.action;
+                this.handleMenuAction(action);
+            });
+        });
 
-// ============================================
-// Keyboard Shortcuts for Testing
-// ============================================
-document.addEventListener('keydown', (e) => {
-    // Quick navigation shortcuts for testing
-    if (e.key === '1') showWelcome();
-    if (e.key === '2') showMainMenu();
-    if (e.key === '3') showDiscovery();
-    if (e.key === '4') showSchedule();
-    if (e.key === '5') showNavigation();
-    if (e.key === '6') showFriends();
-    
-    // Wizard shortcuts
-    if (e.key === 'g') simulateGazeSelect('current');
-    if (e.key === 't') simulateGesture('tap');
-});
+        // Shop labels
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('.shop-label')) {
+                const shopId = e.target.closest('.shop-label').dataset.shop;
+                this.showShopDetail(shopId);
+            }
+        });
 
-// ============================================
-// Initialize on Load
-// ============================================
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('ChristMarket AR Prototype Loaded');
-    console.log('Keyboard shortcuts: 1-6 for screens, G for gaze, T for tap');
-    
-    // Start with wizard panel visible but slightly collapsed
-    const wizardPanel = document.getElementById('wizardPanel');
-    if (wizardPanel) {
-        wizardPanel.classList.add('collapsed');
-    }
-});
+        // Action buttons in shop detail
+        document.querySelectorAll('.action-button').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const action = e.currentTarget.dataset.action;
+                this.handleActionButton(action);
+            });
+        });
 
-// ============================================
-// Gaze Simulation Enhancement
-// ============================================
-let gazeTarget = null;
-let gazeTimeout = null;
+        // Return home button
+        document.getElementById('return-home')?.addEventListener('click', () => {
+            this.returnHome();
+        });
 
-// Add hover listeners to interactive elements
-function setupGazeSimulation() {
-    const interactiveElements = document.querySelectorAll('.menu-card, .stall-card, .friend-card, .primary-button');
-    
-    interactiveElements.forEach(element => {
-        element.addEventListener('mouseenter', (e) => {
-            gazeTarget = element;
-            
-            // Visual feedback for gaze focus
-            element.style.outline = '2px solid rgba(212, 175, 55, 0.5)';
-            element.style.outlineOffset = '4px';
-            
-            // Auto-trigger after 2 seconds of hover (simulating gaze dwell)
-            gazeTimeout = setTimeout(() => {
-                if (gazeTarget === element) {
-                    element.click();
-                    showNotification('👁 Auto-selected by gaze');
+        // End navigation button
+        document.getElementById('end-navigation')?.addEventListener('click', () => {
+            this.endNavigation();
+        });
+
+        // Recommendation categories
+        document.querySelectorAll('.rec-category').forEach(cat => {
+            cat.addEventListener('mouseenter', (e) => this.startGaze(e.currentTarget));
+            cat.addEventListener('mouseleave', () => this.cancelGaze());
+            cat.addEventListener('click', (e) => {
+                const category = e.currentTarget.dataset.category;
+                this.handleRecommendationCategory(category);
+            });
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                this.returnHome();
+            }
+            if (e.key === 'h' || e.key === 'H') {
+                this.showGestureHint();
+            }
+        });
+
+        // Simulate head shake gesture (double press 'S' key)
+        let shakeCount = 0;
+        let shakeTimer = null;
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 's' || e.key === 'S') {
+                shakeCount++;
+                if (shakeCount === 1) {
+                    shakeTimer = setTimeout(() => {
+                        shakeCount = 0;
+                    }, 500);
+                } else if (shakeCount === 2) {
+                    clearTimeout(shakeTimer);
+                    shakeCount = 0;
+                    this.returnHome();
                 }
-            }, 2000);
+            }
         });
+    }
+
+    startGaze(element) {
+        const eyeIcon = element.querySelector('.eye-icon');
+        if (!eyeIcon) return;
+
+        const eyeFill = eyeIcon.querySelector('.eye-fill');
+        if (eyeFill) {
+            eyeFill.style.transition = `width ${this.gazeDuration}ms linear`;
+            eyeFill.style.width = '100%';
+        }
+
+        this.gazeTimeout = setTimeout(() => {
+            this.triggerGazeAction(element);
+        }, this.gazeDuration);
+    }
+
+    cancelGaze() {
+        clearTimeout(this.gazeTimeout);
+        document.querySelectorAll('.eye-fill').forEach(fill => {
+            fill.style.width = '0';
+        });
+    }
+
+    triggerGazeAction(element) {
+        element.click();
+    }
+
+    handleMenuAction(action) {
+        this.hideAll();
         
-        element.addEventListener('mouseleave', (e) => {
-            element.style.outline = 'none';
-            if (gazeTimeout) {
-                clearTimeout(gazeTimeout);
-            }
-            if (gazeTarget === element) {
-                gazeTarget = null;
+        switch(action) {
+            case 'discovery':
+                this.showDiscovery();
+                break;
+            case 'nav':
+                this.showNavigation();
+                break;
+            case 'our-recs':
+                this.showRecommendations();
+                break;
+            case 'friends':
+                this.showFriends();
+                break;
+        }
+    }
+
+    showDiscovery() {
+        this.currentView = 'discovery';
+        document.getElementById('discovery-mode').classList.remove('hidden');
+        document.getElementById('return-home').classList.remove('hidden');
+        document.getElementById('compass').classList.remove('hidden');
+    }
+
+    showNavigation() {
+        this.currentView = 'navigation';
+        document.getElementById('navigation-mode').classList.remove('hidden');
+        document.getElementById('return-home').classList.remove('hidden');
+        document.getElementById('compass').classList.remove('hidden');
+        
+        this.updateFavoritesList();
+    }
+
+    showRecommendations() {
+        this.currentView = 'recommendations';
+        document.getElementById('recommendations-mode').classList.remove('hidden');
+        document.getElementById('return-home').classList.remove('hidden');
+    }
+
+    showFriends() {
+        this.currentView = 'friends';
+        document.getElementById('friends-mode').classList.remove('hidden');
+        document.getElementById('return-home').classList.remove('hidden');
+    }
+
+    showShopDetail(shopId) {
+        const shop = this.shops[shopId];
+        if (!shop) return;
+
+        this.currentShop = shopId;
+
+        // Update shop detail content
+        document.getElementById('detail-shop-name').textContent = shop.name;
+        
+        const menuSection = document.querySelector('.menu-section');
+        const menuItems = menuSection.querySelectorAll('.menu-item');
+        
+        // Update menu items
+        shop.menu.forEach((item, index) => {
+            if (menuItems[index]) {
+                menuItems[index].innerHTML = `
+                    <span>${index + 1}. ${item.item}</span>
+                    <span>${item.price}</span>
+                `;
             }
         });
-    });
+
+        // Update queue indicator
+        const queueIndicator = document.getElementById('detail-queue');
+        queueIndicator.className = 'queue-indicator ' + shop.queue;
+
+        // Check if already favorited
+        const favoriteBtn = document.getElementById('favorite-btn');
+        const starIcon = favoriteBtn.querySelector('.star-icon');
+        if (this.favorites.includes(shopId)) {
+            starIcon.textContent = '★';
+            starIcon.classList.add('filled');
+        } else {
+            starIcon.textContent = '☆';
+            starIcon.classList.remove('filled');
+        }
+
+        // Hide discovery labels, show detail
+        document.querySelector('.shop-labels').style.opacity = '0';
+        document.getElementById('shop-detail').classList.remove('hidden');
+    }
+
+    handleActionButton(action) {
+        switch(action) {
+            case 'favorite':
+                this.toggleFavorite();
+                break;
+            case 'navigate':
+                this.startNavigation();
+                break;
+            case 'share':
+                this.shareLocation();
+                break;
+        }
+    }
+
+    toggleFavorite() {
+        const shopId = this.currentShop;
+        const favoriteBtn = document.getElementById('favorite-btn');
+        const starIcon = favoriteBtn.querySelector('.star-icon');
+
+        if (this.favorites.includes(shopId)) {
+            // Remove from favorites
+            this.favorites = this.favorites.filter(id => id !== shopId);
+            starIcon.textContent = '☆';
+            starIcon.classList.remove('filled');
+        } else {
+            // Add to favorites
+            this.favorites.push(shopId);
+            starIcon.textContent = '★';
+            starIcon.classList.add('filled');
+        }
+
+        this.updateFavoritesList();
+    }
+
+    updateFavoritesList() {
+        const favoritesContent = document.getElementById('favorites-content');
+        
+        if (this.favorites.length === 0) {
+            favoritesContent.innerHTML = `
+                <p class="empty-message">use the Discovery tab to add locations!</p>
+                <div class="discover-hint">
+                    <span class="arrow-hint">→</span>
+                    <span>discovery</span>
+                </div>
+            `;
+        } else {
+            favoritesContent.innerHTML = this.favorites.map(shopId => {
+                const shop = this.shops[shopId];
+                return `
+                    <div class="favorite-item" data-shop="${shopId}">
+                        <span>${shop.name}</span>
+                        <div class="favorite-progress"></div>
+                    </div>
+                `;
+            }).join('');
+
+            // Add click handlers to favorite items
+            document.querySelectorAll('.favorite-item').forEach(item => {
+                item.addEventListener('mouseenter', (e) => {
+                    const progress = e.currentTarget.querySelector('.favorite-progress');
+                    progress.style.width = '100%';
+                });
+                item.addEventListener('mouseleave', (e) => {
+                    const progress = e.currentTarget.querySelector('.favorite-progress');
+                    progress.style.width = '0';
+                });
+                item.addEventListener('click', (e) => {
+                    const shopId = e.currentTarget.dataset.shop;
+                    this.startNavigationTo(shopId);
+                });
+            });
+        }
+    }
+
+    startNavigation() {
+        this.startNavigationTo(this.currentShop);
+    }
+
+    startNavigationTo(shopId) {
+        this.activeNavigation = shopId;
+        const shop = this.shops[shopId];
+
+        // Hide other elements
+        document.getElementById('favorites-list').classList.add('hidden');
+        document.getElementById('shop-detail').classList.add('hidden');
+        
+        // Show active navigation
+        document.getElementById('active-nav').classList.remove('hidden');
+        document.getElementById('end-navigation').classList.remove('hidden');
+        
+        // Update navigation card
+        document.getElementById('nav-shop-name').textContent = shop.name;
+        
+        // Start progress animation
+        const progress = document.getElementById('nav-progress');
+        progress.style.animation = 'progress 3s infinite';
+
+        // Show breadcrumbs
+        this.showBreadcrumbs();
+
+        // Update holographic marker position (simulate)
+        this.updateHoloMarker();
+    }
+
+    showBreadcrumbs() {
+        const trail = document.getElementById('breadcrumb-trail');
+        trail.innerHTML = '';
+        
+        let count = 0;
+        const breadcrumbInterval = setInterval(() => {
+            if (count >= 5) {
+                clearInterval(breadcrumbInterval);
+                return;
+            }
+            
+            const breadcrumb = document.createElement('div');
+            breadcrumb.className = 'breadcrumb';
+            trail.appendChild(breadcrumb);
+            count++;
+        }, 600);
+    }
+
+    updateHoloMarker() {
+        const marker = document.getElementById('holo-marker');
+        marker.style.display = 'block';
+    }
+
+    endNavigation() {
+        this.activeNavigation = null;
+        document.getElementById('active-nav').classList.add('hidden');
+        document.getElementById('end-navigation').classList.add('hidden');
+        document.getElementById('favorites-list').classList.remove('hidden');
+        
+        // Clear breadcrumbs
+        document.getElementById('breadcrumb-trail').innerHTML = '';
+    }
+
+    shareLocation() {
+        // Simulate sharing
+        alert(`Shared ${this.shops[this.currentShop].name} with friends!`);
+    }
+
+    handleRecommendationCategory(category) {
+        if (category === 'quick-eats') {
+            document.getElementById('recs-categories').classList.add('hidden');
+            document.getElementById('quick-eats-results').classList.remove('hidden');
+        }
+        // Add other categories as needed
+    }
+
+    returnHome() {
+        this.hideAll();
+        document.getElementById('home-menu').classList.remove('hidden');
+        this.currentView = 'home';
+        this.currentShop = null;
+        
+        // Reset shop labels opacity
+        document.querySelectorAll('.shop-labels').forEach(labels => {
+            labels.style.opacity = '1';
+        });
+    }
+
+    hideAll() {
+        const views = [
+            'home-menu',
+            'discovery-mode',
+            'shop-detail',
+            'navigation-mode',
+            'recommendations-mode',
+            'friends-mode',
+            'return-home',
+            'end-navigation',
+            'compass',
+            'active-nav',
+            'quick-eats-results'
+        ];
+
+        views.forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.classList.add('hidden');
+            }
+        });
+
+        // Show home menu if returning to home
+        if (this.currentView === 'home') {
+            document.getElementById('home-menu').classList.remove('hidden');
+        }
+
+        // Reset recommendation categories
+        document.getElementById('recs-categories')?.classList.remove('hidden');
+    }
+
+    showGestureHint() {
+        const hint = document.getElementById('gesture-hint');
+        hint.style.display = 'block';
+        
+        setTimeout(() => {
+            hint.style.opacity = '1';
+        }, 100);
+
+        setTimeout(() => {
+            hint.style.opacity = '0';
+            setTimeout(() => {
+                hint.style.display = 'none';
+            }, 300);
+        }, 5000);
+    }
 }
 
-// Call setup when screens change
-const originalShowScreen = showScreen;
-showScreen = function(screenId) {
-    originalShowScreen(screenId);
-    setTimeout(setupGazeSimulation, 100); // Setup after screen transition
-};
-
-// Initial setup
-setTimeout(setupGazeSimulation, 500);
+// Initialize the AR Navigator when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    const navigator = new ARNavigator();
+    
+    // Make it globally accessible for debugging
+    window.arNavigator = navigator;
+    
+    console.log('AR Christmas Market Navigator initialized!');
+    console.log('Press "H" to show gesture hints');
+    console.log('Press "S" twice quickly to simulate head shake (return home)');
+    console.log('Press "Escape" to return home');
+});
