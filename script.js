@@ -144,6 +144,8 @@ class ARNavigator {
         // Action buttons in shop detail
         // TODO: we need this to be gaze time (1sec?) not click based
         document.querySelectorAll('.action-button').forEach(btn => {
+            btn.addEventListener('mouseenter', (e) => this.startGaze(e.currentTarget));
+            btn.addEventListener('mouseleave', () => this.cancelGaze());
             btn.addEventListener('click', (e) => {
                 const action = e.currentTarget.dataset.action;
                 this.handleActionButton(action);
@@ -336,7 +338,9 @@ class ARNavigator {
                 return `
                     <div class="favorite-item" data-shop="${shopId}">
                         <span>${shop.name}</span>
-                        <div class="favorite-progress"></div>
+                        <div class="eye-icon">
+                            <div class="eye-fill"></div>
+                        </div>
                     </div>
                 `;
             }).join('');
@@ -344,13 +348,10 @@ class ARNavigator {
             // Add click handlers to favorite items
             document.querySelectorAll('.favorite-item').forEach(item => {
                 item.addEventListener('mouseenter', (e) => {
-                    const progress = e.currentTarget.querySelector('.favorite-progress');
-                    progress.style.width = '100%';
+                    console.log(e.currentTarget)
+                    this.startGaze(e.currentTarget);
                 });
-                item.addEventListener('mouseleave', (e) => {
-                    const progress = e.currentTarget.querySelector('.favorite-progress');
-                    progress.style.width = '0';
-                });
+                item.addEventListener('mouseleave', () => this.cancelGaze());
                 item.addEventListener('click', (e) => {
                     const shopId = e.currentTarget.dataset.shop;
                     this.startNavigationTo(shopId);
