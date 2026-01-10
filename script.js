@@ -113,6 +113,10 @@ class ARNavigator {
         document.querySelectorAll('.menu-option').forEach(option => {
             option.addEventListener('mouseenter', (e) => this.startGaze(e.currentTarget));
             option.addEventListener('mouseleave', () => this.cancelGaze());
+            option.addEventListener('click', (e) => {
+                const action = e.currentTarget.dataset.action;
+                this.handleMenuAction(action);
+            });
         });
 
         // Shop labels
@@ -141,7 +145,7 @@ class ARNavigator {
         // TODO: we need this to be gaze time (1sec?) not click based
         document.querySelectorAll('.action-button').forEach(btn => {
             btn.addEventListener('click', (e) => {
-                const action = e.currentTarget.getAttribute("dataaction");
+                const action = e.currentTarget.dataset.action;
                 this.handleActionButton(action);
             });
         });
@@ -192,8 +196,7 @@ class ARNavigator {
     }
 
     triggerGazeAction(element) {
-        const action = element.getAttribute("dataaction") ;
-        this.handleMenuAction(action);
+        element.click();
     }
 
     handleMenuAction(action) {
