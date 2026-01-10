@@ -6,9 +6,22 @@
     <title>AR Christmas Market Navigator</title>
     <link rel="stylesheet" href="styles.css">
 </head>
-<body>
+<script src="./mouse-shake.js"></script>
+<body ondragstart="return false;" ondrop="return false;">
     <!-- AR View Container -->
     <div id="ar-container">
+        <!-- blinks-->
+        <div id="blink" class="hidden" style="height: 100%">
+            <div style="
+            background-color: #000000;
+            height: 100%;
+            width: 100%;
+            position: relative;
+            z-index: 100;
+            ">
+            </div>
+        </div>
+
         <!-- Background Image -->
         <div id="ar-background"></div>
         
@@ -22,30 +35,36 @@
             </div>
         </div>
 
+<!--        when you mouse over here, it shows you information -->
+        <div id="hint-box" class="menu-option bottom-mid">
+            <div style="opacity: 0;height: 100%;width: 100%;position: relative;z-index: 100;">
+            </div>
+        </div>
+
         <!-- Home Menu -->
         <div id="home-menu" class="menu-container">
-            <div class="menu-option top-left" data-action="our-recs">
+            <div class="menu-option top-left" dataAction="our-recs">
                 <div class="eye-icon">
                     <div class="eye-fill"></div>
                 </div>
                 <span class="menu-label">our recs</span>
             </div>
 
-            <div class="menu-option top-right" data-action="discovery">
+            <div class="menu-option top-right" dataAction="discovery">
                 <div class="eye-icon">
                     <div class="eye-fill"></div>
                 </div>
                 <span class="menu-label">discovery</span>
             </div>
 
-            <div class="menu-option bottom-left" data-action="nav">
+            <div class="menu-option bottom-left" dataAction="nav">
                 <div class="eye-icon">
                     <div class="eye-fill"></div>
                 </div>
                 <span class="menu-label">nav</span>
             </div>
 
-            <div class="menu-option bottom-right" data-action="friends">
+            <div class="menu-option bottom-right" dataAction="friends">
                 <div class="eye-icon">
                     <div class="eye-fill"></div>
                 </div>
@@ -55,33 +74,30 @@
 
         <!-- Discovery Mode -->
         <div id="discovery-mode" class="hidden">
-            <div class="discovery-header">
-                <div class="eye-icon active">
-                    <div class="eye-fill filled"></div>
-                </div>
+            <div class="discovery-header top-right">
                 <span class="header-label">discovery</span>
             </div>
 
             <!-- Floating shop labels -->
             <div class="shop-labels">
-                <div class="shop-label food large" data-shop="burgers" style="left: 30%; top: 45%;">
+                <div class="shop-label food large" data-shop="burgers" style="left: 35%; top: 60%;">
                     Burgers
                     <div class="queue-indicator red"></div>
                 </div>
-                <div class="shop-label food medium" data-shop="churros" style="left: 65%; top: 35%;">
-                    Churros
+                <div class="shop-label shop large" data-shop="souvenirs" style="left: 60%; top: 55%;">
+                    Souvenirs
                     <div class="queue-indicator green"></div>
                 </div>
-                <div class="shop-label drink small" data-shop="wein" style="left: 15%; top: 25%;">
+                <div class="shop-label drink small" data-shop="wein" style="left: 10%; top: 65%;">
                     Wein
                     <div class="queue-indicator yellow"></div>
                 </div>
-                <div class="shop-label drink small bottom-indicator" data-shop="gluhwein" style="left: 50%; bottom: 10%;">
+                <div class="shop-label drink small bottom-indicator" data-shop="gluhwein" style="left: 18%; bottom: 5%;">
                     Glühwein
                     <div class="queue-indicator green"></div>
                     <div class="bottom-arrow">↓</div>
                 </div>
-                <div class="shop-label food small bottom-indicator" data-shop="schwenker" style="right: 10%; bottom: 10%;">
+                <div class="shop-label food small bottom-indicator" data-shop="schwenker" style="right: 10%; bottom: 5%;">
                     Schwenker
                     <div class="queue-indicator yellow"></div>
                     <div class="bottom-arrow">↓</div>
@@ -114,15 +130,15 @@
             </div>
 
             <div class="detail-right">
-                <div class="action-button" data-action="favorite" id="favorite-btn">
+                <div class="action-button" dataAction="favorite" id="favorite-btn">
                     <div class="star-icon">☆</div>
                     <span>FAVORITE</span>
                 </div>
-                <div class="action-button" data-action="navigate">
+                <div class="action-button" dataAction="navigate">
                     <div class="nav-icon">↗</div>
                     <span>NAVIGATE</span>
                 </div>
-                <div class="action-button" data-action="share">
+                <div class="action-button" dataAction="share">
                     <div class="share-icon">⚐</div>
                     <span>SHARE</span>
                 </div>
@@ -131,10 +147,7 @@
 
         <!-- Navigation Mode -->
         <div id="navigation-mode" class="hidden">
-            <div class="nav-header">
-                <div class="eye-icon active">
-                    <div class="eye-fill filled"></div>
-                </div>
+            <div class="nav-header bottom-left">
                 <span class="header-label">navigation</span>
             </div>
 
@@ -170,10 +183,7 @@
 
         <!-- Recommendations -->
         <div id="recommendations-mode" class="hidden">
-            <div class="recs-header">
-                <div class="eye-icon active">
-                    <div class="eye-fill filled"></div>
-                </div>
+            <div class="recs-header top-left">
                 <span class="header-label">our recommendations</span>
             </div>
 
@@ -226,10 +236,7 @@
 
         <!-- Friends Mode -->
         <div id="friends-mode" class="hidden">
-            <div class="friends-header">
-                <div class="eye-icon active">
-                    <div class="eye-fill filled"></div>
-                </div>
+            <div class="friends-header bottom-right">
                 <span class="header-label">friends</span>
             </div>
             <div class="friends-content">
@@ -246,34 +253,6 @@
                         <span class="friend-status">Offline</span>
                     </div>
                 </div>
-            </div>
-        </div>
-
-        <!-- Return Home Button -->
-        <div id="return-home" class="hidden">
-            <div class="return-button">
-                <div class="return-icon">
-                    <div class="eye-symbol green"></div>
-                    <div class="cat-face">
-                        <span class="cat-text">NO!</span>
-                        <div class="cat-ears"></div>
-                    </div>
-                </div>
-                <span class="return-label">return home:</span>
-            </div>
-        </div>
-
-        <!-- Navigation End Button -->
-        <div id="end-navigation" class="hidden">
-            <div class="end-nav-button">
-                <div class="end-icon">
-                    <div class="eye-symbol green"></div>
-                    <div class="cat-face">
-                        <span class="cat-text">NO!</span>
-                        <div class="cat-ears"></div>
-                    </div>
-                </div>
-                <span class="end-label">end navigation:</span>
             </div>
         </div>
 
